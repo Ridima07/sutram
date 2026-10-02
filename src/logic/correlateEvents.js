@@ -8,36 +8,64 @@
  * - compatible actions
  * - meaningful shared entities
  *
- * Device alone is NOT enough to establish a correlation.
+ * A shared device alone is NOT sufficient.
  */
 
-const TIME_WINDOW_MS = 5 * 1000; // 5 seconds
+const TIME_WINDOW_MS = 5 * 1000;
+
+
+// ==================================================
+// FIND SHARED ENTITIES
+// ==================================================
 
 function getSharedEntities(a, b) {
   const shared = [];
 
-  if (a.user && b.user && a.user === b.user) {
+  if (
+    a.user &&
+    b.user &&
+    a.user === b.user
+  ) {
     shared.push(`user:${a.user}`);
   }
 
-  if (a.device && b.device && a.device === b.device) {
+  if (
+    a.device &&
+    b.device &&
+    a.device === b.device
+  ) {
     shared.push(`device:${a.device}`);
   }
 
-  if (a.file && b.file && a.file === b.file) {
+  if (
+    a.file &&
+    b.file &&
+    a.file === b.file
+  ) {
     shared.push(`file:${a.file}`);
   }
 
-  if (a.usb && b.usb && a.usb === b.usb) {
+  if (
+    a.usb &&
+    b.usb &&
+    a.usb === b.usb
+  ) {
     shared.push(`usb:${a.usb}`);
   }
 
-  if (a.ip && b.ip && a.ip === b.ip) {
+  if (
+    a.ip &&
+    b.ip &&
+    a.ip === b.ip
+  ) {
     shared.push(`ip:${a.ip}`);
   }
 
-  // FILE-002 uses destination: USB-003
-  // while USB-002 uses usb: USB-003.
+
+  // Example:
+  // FILE-002 destination = USB-003
+  // USB-002 usb = USB-003
+
   if (
     a.destination &&
     b.usb &&
@@ -53,6 +81,11 @@ function getSharedEntities(a, b) {
   ) {
     shared.push(`target:${b.destination}`);
   }
+
+
+  // Example:
+  // FILE-003 destination = 85.21.44.9
+  // NET-002 ip = 85.21.44.9
 
   if (
     a.destination &&
@@ -74,111 +107,212 @@ function getSharedEntities(a, b) {
 }
 
 
-// Actions that describe the same underlying activity
-// from different evidence sources.
+// ==================================================
+// ACTION COMPATIBILITY
+// ==================================================
+
 function areCompatibleActions(actionA, actionB) {
   const pair = new Set([actionA, actionB]);
 
   return (
-    pair.has("FILE_ACCESS") && pair.has("READ") ||
-    pair.has("COPY") && pair.has("FILE_WRITE") ||
-    pair.has("NETWORK_CONNECTION") && pair.has("CONNECTION") ||
-    pair.has("TRANSFER") && pair.has("OUTBOUND_TRANSFER")
+
+    // File access observed by two sources
+    (
+      pair.has("FILE_ACCESS") &&
+      pair.has("READ")
+    )
+
+    ||
+
+    // File copied to USB
+    (
+      pair.has("COPY") &&
+      pair.has("FILE_WRITE")
+    )
+
+    ||
+
+    // Network connection
+    (
+      pair.has("NETWORK_CONNECTION") &&
+      pair.has("CONNECTION")
+    )
+
+    ||
+
+    // File transfer
+    (
+      pair.has("TRANSFER") &&
+      pair.has("OUTBOUND_TRANSFER")
+    )
   );
 }
 
 
+// ==================================================
+// CORRELATION ENGINE
+// ==================================================
+
 export function correlateEvents(events) {
+
   if (!Array.isArray(events)) {
-    throw new Error("Events must be provided as an array.");
+    throw new Error(
+      "Events must be provided as an array."
+    );
   }
 
   const correlations = [];
 
-  for (let i = 0; i < events.length; i++) {
-    for (let j = i + 1; j < events.length; j++) {
+  for (
+    let i = 0;
+    i < events.length;
+    i++
+  ) {
+
+    for (
+      let j = i + 1;
+      j < events.length;
+      j++
+    ) {
+
       const first = events[i];
       const second = events[j];
 
-      // Same source does not count as independent corroboration.
-      if (first.source === second.source) {
+
+      // --------------------------------------------------
+      // DIFFERENT SOURCES REQUIRED
+      // --------------------------------------------------
+
+      if (
+        first.source === second.source
+      ) {
         continue;
       }
 
-      const timeDifference = Math.abs(
-        new Date(second.timestamp).getTime() -
+
+      // --------------------------------------------------
+      // TIME PROXIMITY
+      // --------------------------------------------------
+
+      const timeDifference =
+        Math.abs(
+          new Date(second.timestamp).getTime() -
           new Date(first.timestamp).getTime()
-      );
+        );
 
-      if (timeDifference > TIME_WINDOW_MS) {
+      if (
+        timeDifference > TIME_WINDOW_MS
+      ) {
         continue;
       }
 
-      const sharedEntities = getSharedEntities(first, second);
 
-      if (sharedEntities.length === 0) {
+      // --------------------------------------------------
+      // ACTION COMPATIBILITY
+      // --------------------------------------------------
+
+      if (
+        !areCompatibleActions(
+          first.action,
+          second.action
+        )
+      ) {
         continue;
       }
 
-      const compatibleActions = areCompatibleActions(
-        first.action,
-        second.action
-      );
 
-      /*
-       * Strong correlation:
-       * Same underlying activity observed independently
-       * by two different sources.
-       */
+      // --------------------------------------------------
+      // SHARED ENTITIES
+      // --------------------------------------------------
+
+      const sharedEntities =
+        getSharedEntities(
+          first,
+          second
+        );
+
+      if (
+        sharedEntities.length === 0
+      ) {
+        continue;
+      }
+
+
+      // --------------------------------------------------
+      // STRONG ENTITY MATCH
+      // --------------------------------------------------
+
       const sameFile =
         first.file &&
         second.file &&
         first.file === second.file;
-
-      const sameDevice =
-        first.device &&
-        second.device &&
-        first.device === second.device;
 
       const sameUser =
         first.user &&
         second.user &&
         first.user === second.user;
 
-      const sameUsb =
+      const sameDevice =
+        first.device &&
+        second.device &&
+        first.device === second.device;
+
+      const sameUSB =
         first.usb &&
         second.usb &&
         first.usb === second.usb;
 
-      const sameIp =
+      const sameIP =
         first.ip &&
         second.ip &&
         first.ip === second.ip;
 
-      const targetMatch = sharedEntities.some(
-        (entity) => entity.startsWith("target:")
-      );
+      const targetMatch =
+        sharedEntities.some(
+          (entity) =>
+            entity.startsWith("target:")
+        );
+
+
+      /*
+       * A device alone is NOT enough.
+       *
+       * Strong evidence requires something more specific:
+       * file, USB, IP, target, or user+device.
+       */
 
       const strongEntityMatch =
         sameFile ||
-        sameUsb ||
-        sameIp ||
+        sameUSB ||
+        sameIP ||
         targetMatch ||
-        (sameUser && sameDevice);
+        (
+          sameUser &&
+          sameDevice
+        );
 
-      if (!compatibleActions || !strongEntityMatch) {
+      if (!strongEntityMatch) {
         continue;
       }
 
+
+      // --------------------------------------------------
+      // RECORD CORRELATION
+      // --------------------------------------------------
+
       correlations.push({
+
         from: first.recordId,
+
         to: second.recordId,
 
-        relation: "CROSS_SOURCE_CORROBORATION",
+        relation:
+          "CROSS_SOURCE_CORROBORATION",
 
-        timeDifferenceSeconds: Math.round(
-          timeDifference / 1000
-        ),
+        timeDifferenceSeconds:
+          Math.round(
+            timeDifference / 1000
+          ),
 
         sharedEntities,
 

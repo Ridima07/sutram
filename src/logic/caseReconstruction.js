@@ -7,6 +7,7 @@
  */
 
 export function reconstructCase(events, correlations = []) {
+
   if (!Array.isArray(events)) {
     throw new Error("Events must be provided as an array.");
   }
@@ -23,6 +24,7 @@ export function reconstructCase(events, correlations = []) {
   // --------------------------------------------------
 
   for (const correlation of correlations) {
+
     const first = eventMap.get(correlation.from);
     const second = eventMap.get(correlation.to);
 
@@ -58,6 +60,7 @@ export function reconstructCase(events, correlations = []) {
   // --------------------------------------------------
 
   for (const event of events) {
+
     if (visited.has(event.recordId)) {
       continue;
     }
@@ -92,6 +95,7 @@ export function reconstructCase(events, correlations = []) {
 // ==================================================
 
 function buildActivity(observations, correlation) {
+
   const primary = observations[0];
 
   const actions = observations.map(
@@ -186,10 +190,28 @@ function buildActivity(observations, correlation) {
     null;
 
   // --------------------------------------------------
+  // EVIDENCE SUPPORT CLASSIFICATION
+  // --------------------------------------------------
+
+  const sources = [
+    ...new Set(
+      observations.map(
+        (event) => event.source
+      )
+    )
+  ];
+
+  const supportLevel =
+    observations.length >= 2 && sources.length >= 2
+      ? "strong-corroboration"
+      : "single-source";
+
+  // --------------------------------------------------
   // FINAL ACTIVITY OBJECT
   // --------------------------------------------------
 
   return {
+
     activityId: `ACT-${primary.recordId}`,
 
     timestamp: primary.timestamp,
@@ -210,13 +232,7 @@ function buildActivity(observations, correlation) {
 
     ip,
 
-    sources: [
-      ...new Set(
-        observations.map(
-          (event) => event.source
-        )
-      )
-    ],
+    sources,
 
     supportingRecords:
       observations.map(
@@ -229,6 +245,8 @@ function buildActivity(observations, correlation) {
     correlation:
       correlation?.strength ||
       "single-source",
+
+    supportLevel,
 
     sharedEntities:
       correlation?.sharedEntities ||

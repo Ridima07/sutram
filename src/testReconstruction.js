@@ -29,149 +29,239 @@ console.log(
 
 
 // ==================================================
-// 2. NORMALIZE DIFFERENT SOURCES
+// 2. NORMALIZE
 // ==================================================
 
-const normalizedEvents = normalizeEvents(rawRecords);
+const normalizedEvents =
+  normalizeEvents(rawRecords);
 
 console.log("\n========================================");
 console.log("        NORMALIZED EVENTS");
 console.log("========================================\n");
 
-normalizedEvents.forEach((event) => {
-  console.log(
-    `${event.recordId} | ${event.source} | ${event.action} | ${event.timestamp}`
-  );
-});
+normalizedEvents.forEach(
+  (event) => {
+
+    console.log(
+      `${event.recordId} | ` +
+      `${event.source} | ` +
+      `${event.action} | ` +
+      `${event.timestamp}`
+    );
+  }
+);
 
 
 // ==================================================
-// 3. CORRELATE INDEPENDENT OBSERVATIONS
+// 3. CORRELATE
 // ==================================================
 
 const correlations =
-  correlateEvents(normalizedEvents);
+  correlateEvents(
+    normalizedEvents
+  );
 
 console.log("\n========================================");
 console.log("        CROSS-SOURCE CORRELATIONS");
 console.log("========================================\n");
 
-correlations.forEach((correlation) => {
-  console.log(
-    `${correlation.from} ↔ ${correlation.to}`
-  );
-
-  console.log(
-    `Relation: ${correlation.relation}`
-  );
-
-  console.log(
-    `Shared: ${correlation.sharedEntities.join(", ")}`
-  );
-
-  console.log(
-    `Time difference: ${correlation.timeDifferenceSeconds}s`
-  );
-
-  console.log(
-    `Strength: ${correlation.strength}\n`
-  );
-});
-
-
-// ==================================================
-// 4. RECONSTRUCT CASE
-// ==================================================
-
-const timeline = reconstructCase(
-  normalizedEvents,
-  correlations
+console.log(
+  `Total meaningful correlations: ${correlations.length}\n`
 );
+
+correlations.forEach(
+  (correlation) => {
+
+    console.log(
+      `${correlation.from} ↔ ${correlation.to}`
+    );
+
+    console.log(
+      `Relation: ${correlation.relation}`
+    );
+
+    console.log(
+      `Shared: ${
+        correlation.sharedEntities.join(", ")
+      }`
+    );
+
+    console.log(
+      `Time difference: ${
+        correlation.timeDifferenceSeconds
+      }s`
+    );
+
+    console.log(
+      `Strength: ${correlation.strength}\n`
+    );
+  }
+);
+
+
+// ==================================================
+// 4. RECONSTRUCT
+// ==================================================
+
+const timeline =
+  reconstructCase(
+    normalizedEvents,
+    correlations
+  );
 
 console.log("\n========================================");
 console.log("      RECONSTRUCTED CASE TIMELINE");
 console.log("========================================\n");
 
-timeline.forEach((activity) => {
+timeline.forEach(
+  (activity) => {
 
-  console.log(
-    `${activity.sequence}. ${activity.time} — ${activity.description}`
-  );
-
-  console.log(
-    `   Activity: ${activity.activityId}`
-  );
-
-  console.log(
-    `   Type: ${activity.type}`
-  );
-
-  if (activity.user) {
     console.log(
-      `   User: ${activity.user}`
+      `${activity.sequence}. ` +
+      `${activity.time} — ` +
+      `${activity.description}`
     );
-  }
 
-  if (activity.device) {
     console.log(
-      `   Device: ${activity.device}`
+      `   Activity: ${activity.activityId}`
     );
-  }
 
-  if (activity.file) {
     console.log(
-      `   File: ${activity.file}`
+      `   Type: ${activity.type}`
     );
-  }
 
-  if (activity.usb) {
+    if (activity.user) {
+      console.log(
+        `   User: ${activity.user}`
+      );
+    }
+
+    if (activity.device) {
+      console.log(
+        `   Device: ${activity.device}`
+      );
+    }
+
+    if (activity.file) {
+      console.log(
+        `   File: ${activity.file}`
+      );
+    }
+
+    if (activity.usb) {
+      console.log(
+        `   USB: ${activity.usb}`
+      );
+    }
+
+    if (activity.ip) {
+      console.log(
+        `   IP: ${activity.ip}`
+      );
+    }
+
     console.log(
-      `   USB: ${activity.usb}`
+      `   Sources: ${
+        activity.sources.join(", ")
+      }`
     );
-  }
 
-  if (activity.ip) {
     console.log(
-      `   IP: ${activity.ip}`
+      `   Supporting records: ${
+        activity.supportingRecords.join(", ")
+      }`
     );
+
+    console.log(
+      `   Observations merged: ${
+        activity.observationCount
+      }`
+    );
+
+    console.log(
+      `   Correlation: ${
+        activity.correlation
+      }`
+    );
+
+    console.log(
+      `   Evidence support: ${
+        activity.supportLevel
+      }`
+    );
+
+    console.log();
   }
-
-  console.log(
-    `   Sources: ${activity.sources.join(", ")}`
-  );
-
-  console.log(
-    `   Supporting records: ${activity.supportingRecords.join(", ")}`
-  );
-
-  console.log(
-    `   Correlation: ${activity.correlation}`
-  );
-
-  console.log();
-});
+);
 
 
 // ==================================================
-// 5. FINAL STRUCTURED RESULT
+// 5. EVIDENCE SUPPORT SUMMARY
+// ==================================================
+
+const stronglyCorroborated =
+  timeline.filter(
+    (activity) =>
+      activity.supportLevel ===
+      "strong-corroboration"
+  ).length;
+
+const singleSource =
+  timeline.filter(
+    (activity) =>
+      activity.supportLevel ===
+      "single-source"
+  ).length;
+
+console.log("\n========================================");
+console.log("       EVIDENCE SUPPORT SUMMARY");
+console.log("========================================\n");
+
+console.log(
+  `Strongly corroborated: ${stronglyCorroborated}`
+);
+
+console.log(
+  `Single-source observations: ${singleSource}`
+);
+
+
+// ==================================================
+// 6. FINAL STRUCTURED RESULT
 // ==================================================
 
 const result = {
-  observationCount: normalizedEvents.length,
 
-  correlationCount: correlations.length,
+  observationCount:
+    normalizedEvents.length,
 
-  reconstructedActivityCount: timeline.length,
+  correlationCount:
+    correlations.length,
+
+  reconstructedActivityCount:
+    timeline.length,
+
+  supportSummary: {
+
+    stronglyCorroborated,
+
+    singleSource
+  },
 
   correlations,
 
   timeline
 };
 
+
 console.log("\n========================================");
 console.log("       FINAL RECONSTRUCTION OBJECT");
 console.log("========================================\n");
 
 console.log(
-  JSON.stringify(result, null, 2)
+  JSON.stringify(
+    result,
+    null,
+    2
+  )
 );
