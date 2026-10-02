@@ -1,68 +1,237 @@
 /**
- * Reconstructs a chronological forensic timeline
- * from events collected from multiple evidence sources.
+ * Reconstructs activities from independently observed
+ * and correlated forensic evidence.
  *
- * @param {Array} events - Raw forensic events
- * @returns {Array} Chronologically reconstructed timeline
+ * Multiple raw observations describing the same activity
+ * are merged into one reconstructed activity.
  */
-export function reconstructCase(events) {
+
+export function reconstructCase(events, correlations = []) {
   if (!Array.isArray(events)) {
     throw new Error("Events must be provided as an array.");
   }
 
-  return [...events]
-    .filter((event) => event.timestamp && event.title)
-    .sort(
+  const eventMap = new Map(
+    events.map((event) => [event.recordId, event])
+  );
+
+  const visited = new Set();
+  const activities = [];
+
+  // --------------------------------------------------
+  // MERGE CORRELATED OBSERVATIONS
+  // --------------------------------------------------
+
+  for (const correlation of correlations) {
+    const first = eventMap.get(correlation.from);
+    const second = eventMap.get(correlation.to);
+
+    if (!first || !second) {
+      continue;
+    }
+
+    // Avoid processing the same observation twice.
+    if (
+      visited.has(first.recordId) ||
+      visited.has(second.recordId)
+    ) {
+      continue;
+    }
+
+    const observations = [first, second].sort(
       (a, b) =>
         new Date(a.timestamp).getTime() -
         new Date(b.timestamp).getTime()
-    )
-    .map((event, index) => ({
-      sequence: index + 1,
-      id: event.id,
-      timestamp: event.timestamp,
+    );
 
-      // Extract time directly from the timestamp.
-      // This keeps the displayed time consistent regardless
-      // of the computer's timezone.
-      time: event.timestamp.slice(11, 19),
+    observations.forEach((event) => {
+      visited.add(event.recordId);
+    });
 
-      type: event.type,
-      title: event.title,
-      description: event.description || "",
-
-      subject: event.subject || null,
-      device: event.device || null,
-      file: event.file || null,
-      ip: event.ip || null,
-      usb: event.usb || null,
-
-      // Evidence supporting this event
-      evidenceIds: event.evidenceIds || []
-    }));
-}
-
-/**
- * Finds a reconstructed event by its ID.
- *
- * @param {Array} timeline - Reconstructed timeline
- * @param {string} eventId - Event ID
- * @returns {Object|null}
- */
-export function getEventById(timeline, eventId) {
-  return timeline.find((event) => event.id === eventId) || null;
-}
-
-/**
- * Returns the evidence IDs supporting a particular event.
- *
- * @param {Object} event - Reconstructed event
- * @returns {Array}
- */
-export function getSupportingEvidence(event) {
-  if (!event || !Array.isArray(event.evidenceIds)) {
-    return [];
+    activities.push(
+      buildActivity(observations, correlation)
+    );
   }
 
-  return event.evidenceIds;
+  // --------------------------------------------------
+  // KEEP UNCORRELATED OBSERVATIONS
+  // --------------------------------------------------
+
+  for (const event of events) {
+    if (visited.has(event.recordId)) {
+      continue;
+    }
+
+    activities.push(
+      buildActivity([event], null)
+    );
+
+    visited.add(event.recordId);
+  }
+
+  // --------------------------------------------------
+  // SORT FINAL ACTIVITIES CHRONOLOGICALLY
+  // --------------------------------------------------
+
+  activities.sort(
+    (a, b) =>
+      new Date(a.timestamp).getTime() -
+      new Date(b.timestamp).getTime()
+  );
+
+  // Add final sequence numbers.
+  return activities.map((activity, index) => ({
+    ...activity,
+    sequence: index + 1
+  }));
+}
+
+
+// ==================================================
+// BUILD ONE RECONSTRUCTED ACTIVITY
+// ==================================================
+
+function buildActivity(observations, correlation) {
+  const primary = observations[0];
+
+  const actions = observations.map(
+    (event) => event.action
+  );
+
+  let activityType = primary.action;
+  let description = primary.action;
+
+  // --------------------------------------------------
+  // FILE ACCESS
+  // --------------------------------------------------
+
+  if (
+    actions.includes("FILE_ACCESS") ||
+    actions.includes("READ")
+  ) {
+    activityType = "FILE_ACCESS";
+    description = "File accessed";
+  }
+
+  // --------------------------------------------------
+  // USB COPY
+  // --------------------------------------------------
+
+  if (
+    actions.includes("COPY") ||
+    actions.includes("FILE_WRITE")
+  ) {
+    activityType = "USB_COPY";
+    description = "File copied to USB device";
+  }
+
+  // --------------------------------------------------
+  // NETWORK CONNECTION
+  // --------------------------------------------------
+
+  if (
+    actions.includes("NETWORK_CONNECTION") ||
+    actions.includes("CONNECTION")
+  ) {
+    activityType = "NETWORK_CONNECTION";
+    description =
+      "External network connection established";
+  }
+
+  // --------------------------------------------------
+  // FILE TRANSFER
+  // --------------------------------------------------
+
+  if (
+    actions.includes("TRANSFER") ||
+    actions.includes("OUTBOUND_TRANSFER")
+  ) {
+    activityType = "FILE_TRANSFER";
+    description =
+      "File transferred to external destination";
+  }
+
+  // --------------------------------------------------
+  // EXTRACT COMMON ENTITIES
+  // --------------------------------------------------
+
+  const user =
+    observations.find((event) => event.user)?.user ||
+    null;
+
+  const device =
+    observations.find((event) => event.device)?.device ||
+    null;
+
+  const file =
+    observations.find((event) => event.file)?.file ||
+    null;
+
+  const usb =
+    observations.find((event) => event.usb)?.usb ||
+    observations.find(
+      (event) =>
+        event.destination &&
+        event.destination.startsWith("USB-")
+    )?.destination ||
+    null;
+
+  const ip =
+    observations.find((event) => event.ip)?.ip ||
+    observations.find(
+      (event) =>
+        event.destination &&
+        /^\d+\.\d+\.\d+\.\d+$/.test(event.destination)
+    )?.destination ||
+    null;
+
+  // --------------------------------------------------
+  // FINAL ACTIVITY OBJECT
+  // --------------------------------------------------
+
+  return {
+    activityId: `ACT-${primary.recordId}`,
+
+    timestamp: primary.timestamp,
+
+    time: primary.timestamp.slice(11, 19),
+
+    type: activityType,
+
+    description,
+
+    user,
+
+    device,
+
+    file,
+
+    usb,
+
+    ip,
+
+    sources: [
+      ...new Set(
+        observations.map(
+          (event) => event.source
+        )
+      )
+    ],
+
+    supportingRecords:
+      observations.map(
+        (event) => event.recordId
+      ),
+
+    observationCount:
+      observations.length,
+
+    correlation:
+      correlation?.strength ||
+      "single-source",
+
+    sharedEntities:
+      correlation?.sharedEntities ||
+      []
+  };
 }
