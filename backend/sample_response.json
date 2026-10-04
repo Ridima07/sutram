@@ -1,0 +1,536 @@
+{
+  "anomalies": [
+    {
+      "id": "ANM-001",
+      "timestamp": "2026-09-03T00:46:00",
+      "user": "Rahul",
+      "ip": "103.48.145.123",
+      "score": 1.0,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 7,
+        "file_accesses": 59,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 59 vs typical ~12; activity per hour: 38 vs typical ~6; failed logins: 7 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-002",
+      "timestamp": "2026-09-13T00:23:00",
+      "user": "Rahul",
+      "ip": "91.235.183.10",
+      "score": 1.0,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 13,
+        "file_accesses": 50,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 50 vs typical ~12; failed logins: 13 vs typical ~0; activity per hour: 21 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-003",
+      "timestamp": "2026-09-10T00:42:00",
+      "user": "Vikram",
+      "ip": "85.90.50.177",
+      "score": 0.99,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 14,
+        "file_accesses": 31,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual failed logins: 14 vs typical ~0; activity per hour: 32 vs typical ~6; file accesses: 31 vs typical ~12; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-004",
+      "timestamp": "2026-09-08T00:39:00",
+      "user": "Neha",
+      "ip": "103.93.201.90",
+      "score": 0.98,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 7,
+        "file_accesses": 33,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual activity per hour: 38 vs typical ~6; file accesses: 33 vs typical ~12; failed logins: 7 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-005",
+      "timestamp": "2026-09-11T02:05:00",
+      "user": "Amit",
+      "ip": "91.10.158.60",
+      "score": 0.98,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 2,
+        "failed_logins": 9,
+        "file_accesses": 57,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 57 vs typical ~12; activity per hour: 31 vs typical ~6; failed logins: 9 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-006",
+      "timestamp": "2026-09-01T00:28:00",
+      "user": "Neha",
+      "ip": "45.211.102.105",
+      "score": 0.98,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 6,
+        "file_accesses": 51,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 51 vs typical ~12; activity per hour: 34 vs typical ~6; failed logins: 6 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-007",
+      "timestamp": "2026-09-09T03:47:00",
+      "user": "Rahul",
+      "ip": "45.70.86.161",
+      "score": 0.98,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 3,
+        "failed_logins": 6,
+        "file_accesses": 55,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 55 vs typical ~12; activity per hour: 21 vs typical ~6; failed logins: 6 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-008",
+      "timestamp": "2026-09-11T00:21:00",
+      "user": "Priya",
+      "ip": "85.222.21.148",
+      "score": 0.97,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 7,
+        "file_accesses": 47,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 47 vs typical ~12; activity per hour: 35 vs typical ~6; failed logins: 7 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-009",
+      "timestamp": "2026-09-09T03:01:00",
+      "user": "Rahul",
+      "ip": "45.2.132.86",
+      "score": 0.97,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 3,
+        "failed_logins": 6,
+        "file_accesses": 53,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 53 vs typical ~12; activity per hour: 30 vs typical ~6; failed logins: 6 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-010",
+      "timestamp": "2026-09-10T03:01:00",
+      "user": "Neha",
+      "ip": "203.111.29.236",
+      "score": 0.97,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 3,
+        "failed_logins": 13,
+        "file_accesses": 32,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual failed logins: 13 vs typical ~0; activity per hour: 28 vs typical ~6; file accesses: 32 vs typical ~12; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-011",
+      "timestamp": "2026-09-12T02:48:00",
+      "user": "Neha",
+      "ip": "103.43.43.217",
+      "score": 0.97,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 2,
+        "failed_logins": 10,
+        "file_accesses": 51,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 51 vs typical ~12; failed logins: 10 vs typical ~0; activity per hour: 22 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-012",
+      "timestamp": "2026-09-01T04:13:00",
+      "user": "Neha",
+      "ip": "91.44.41.134",
+      "score": 0.97,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 6,
+        "file_accesses": 32,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual activity per hour: 35 vs typical ~6; file accesses: 32 vs typical ~12; failed logins: 6 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-013",
+      "timestamp": "2026-09-11T00:08:00",
+      "user": "Vikram",
+      "ip": "185.89.106.122",
+      "score": 0.96,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 11,
+        "file_accesses": 43,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 43 vs typical ~12; failed logins: 11 vs typical ~0; activity per hour: 20 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-014",
+      "timestamp": "2026-09-01T03:17:00",
+      "user": "Neha",
+      "ip": "185.245.31.93",
+      "score": 0.96,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 3,
+        "failed_logins": 13,
+        "file_accesses": 34,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual failed logins: 13 vs typical ~0; file accesses: 34 vs typical ~12; activity per hour: 25 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-015",
+      "timestamp": "2026-09-02T01:06:00",
+      "user": "Amit",
+      "ip": "85.155.2.50",
+      "score": 0.96,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 1,
+        "failed_logins": 12,
+        "file_accesses": 34,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual activity per hour: 31 vs typical ~6; failed logins: 12 vs typical ~0; file accesses: 34 vs typical ~12; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-016",
+      "timestamp": "2026-09-14T02:43:00",
+      "user": "Rahul",
+      "ip": "85.21.44.9",
+      "score": 0.96,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 2,
+        "failed_logins": 12,
+        "file_accesses": 37,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 37 vs typical ~12; failed logins: 12 vs typical ~0; activity per hour: 25 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-017",
+      "timestamp": "2026-09-14T04:48:00",
+      "user": "Amit",
+      "ip": "85.135.205.69",
+      "score": 0.96,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 12,
+        "file_accesses": 37,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 37 vs typical ~12; failed logins: 12 vs typical ~0; activity per hour: 22 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-018",
+      "timestamp": "2026-09-13T04:57:00",
+      "user": "Priya",
+      "ip": "185.148.55.41",
+      "score": 0.96,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 10,
+        "file_accesses": 42,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 42 vs typical ~12; activity per hour: 35 vs typical ~6; failed logins: 10 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-019",
+      "timestamp": "2026-09-11T01:51:00",
+      "user": "Neha",
+      "ip": "85.250.217.5",
+      "score": 0.96,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 1,
+        "failed_logins": 9,
+        "file_accesses": 41,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual activity per hour: 36 vs typical ~6; file accesses: 41 vs typical ~12; failed logins: 9 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-020",
+      "timestamp": "2026-09-07T00:38:00",
+      "user": "Vikram",
+      "ip": "103.179.189.200",
+      "score": 0.95,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 7,
+        "file_accesses": 44,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 44 vs typical ~12; activity per hour: 32 vs typical ~6; failed logins: 7 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-021",
+      "timestamp": "2026-09-08T01:04:00",
+      "user": "Neha",
+      "ip": "85.139.30.14",
+      "score": 0.95,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 1,
+        "failed_logins": 7,
+        "file_accesses": 32,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 32 vs typical ~12; failed logins: 7 vs typical ~0; activity per hour: 20 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-022",
+      "timestamp": "2026-09-05T04:42:00",
+      "user": "Neha",
+      "ip": "103.148.159.41",
+      "score": 0.95,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 8,
+        "file_accesses": 50,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 50 vs typical ~12; activity per hour: 28 vs typical ~6; failed logins: 8 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-023",
+      "timestamp": "2026-09-14T00:41:00",
+      "user": "Amit",
+      "ip": "103.209.150.216",
+      "score": 0.95,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 0,
+        "failed_logins": 9,
+        "file_accesses": 34,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual activity per hour: 33 vs typical ~6; file accesses: 34 vs typical ~12; failed logins: 9 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-024",
+      "timestamp": "2026-09-14T01:23:00",
+      "user": "Amit",
+      "ip": "185.31.84.81",
+      "score": 0.94,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 1,
+        "failed_logins": 9,
+        "file_accesses": 47,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 47 vs typical ~12; failed logins: 9 vs typical ~0; activity per hour: 24 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-025",
+      "timestamp": "2026-09-07T04:52:00",
+      "user": "Vikram",
+      "ip": "103.202.144.205",
+      "score": 0.94,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 9,
+        "file_accesses": 45,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 45 vs typical ~12; failed logins: 9 vs typical ~0; activity per hour: 21 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-026",
+      "timestamp": "2026-09-07T04:00:00",
+      "user": "Amit",
+      "ip": "203.61.243.35",
+      "score": 0.94,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 6,
+        "file_accesses": 33,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 33 vs typical ~12; activity per hour: 25 vs typical ~6; failed logins: 6 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-027",
+      "timestamp": "2026-09-01T02:09:00",
+      "user": "Neha",
+      "ip": "45.143.175.122",
+      "score": 0.93,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 2,
+        "failed_logins": 9,
+        "file_accesses": 45,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 45 vs typical ~12; failed logins: 9 vs typical ~0; activity per hour: 23 vs typical ~6; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-028",
+      "timestamp": "2026-09-06T01:44:00",
+      "user": "Priya",
+      "ip": "103.229.228.252",
+      "score": 0.93,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 1,
+        "failed_logins": 8,
+        "file_accesses": 47,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 47 vs typical ~12; activity per hour: 26 vs typical ~6; failed logins: 8 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-029",
+      "timestamp": "2026-09-10T04:25:00",
+      "user": "Rahul",
+      "ip": "203.106.20.32",
+      "score": 0.93,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 6,
+        "file_accesses": 39,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 39 vs typical ~12; activity per hour: 27 vs typical ~6; failed logins: 6 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-030",
+      "timestamp": "2026-09-10T04:03:00",
+      "user": "Priya",
+      "ip": "185.28.194.78",
+      "score": 0.93,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 7,
+        "file_accesses": 36,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual file accesses: 36 vs typical ~12; activity per hour: 27 vs typical ~6; failed logins: 7 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    },
+    {
+      "id": "ANM-031",
+      "timestamp": "2026-09-13T04:51:00",
+      "user": "Priya",
+      "ip": "85.198.56.33",
+      "score": 0.93,
+      "severity": "high",
+      "indicators": {
+        "login_hour": 4,
+        "failed_logins": 8,
+        "file_accesses": 34,
+        "new_ip": true,
+        "external_ip": true
+      },
+      "reason": "Unusual activity per hour: 32 vs typical ~6; file accesses: 34 vs typical ~12; failed logins: 8 vs typical ~0; off-hours access; external IP address; IP not usual for this user",
+      "label": "Potentially anomalous activity \u2014 requires investigator review"
+    }
+  ],
+  "summary": {
+    "total_records": 1486,
+    "flagged": 31,
+    "threshold": 0.8
+  }
+}
