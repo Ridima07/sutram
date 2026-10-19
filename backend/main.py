@@ -7,6 +7,11 @@ from pydantic import BaseModel
 
 from model import score
 
+from pathlib import Path
+from pydantic import BaseModel
+
+from integrity import register_evidence, list_evidence, verify_evidence
+
 app = FastAPI(title="Forensics Anomaly API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
@@ -25,6 +30,8 @@ class Req(BaseModel):
     records: Optional[List[Record]] = None  # None = use bundled sample data
     threshold: float = 0.8
 
+class EvidenceRegistrationRequest(BaseModel):
+    file_path: str
 
 @app.get("/")
 def health():
@@ -64,3 +71,31 @@ def detect(req: Req):
     return {"anomalies": items,
             "summary": {"total_records": len(out), "flagged": len(items),
                         "threshold": req.threshold}}
+
+
+@app.post("/api/evidence/register")
+def api_register_evidence(req: EvidenceRegistrationRequest):
+    try:
+        return register_evidence(req.file_path)
+    except FileNotFoundError as exc:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(exc))
+    except ValueError as exc:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.get("/api/evidence")
+def api_list_evidence():
+    return {"evidence": list_evidence()}
+
+
+@app.post("/api/evidence/{evidence_id}/verify")
+def api_verify_evidence(evidence_id: str):
+    result = verify_evidence(evidence_id)
+
+    if result is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Evidence record not found.")
+
+    return result

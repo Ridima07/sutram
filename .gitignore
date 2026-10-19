@@ -2,3 +2,16 @@
   __pycache__/
   *.joblib
   .env
+# Generated Python files
+**/__pycache__/
+**/*.py[cod]
+**/*.joblib
+**/venv/
+**/.venv/
+
+# Local evidence integrity database
+backend/evidence_integrity.db
+
+# Temporary local test files
+reconstruction-before.txt
+test_evidence.txt
