@@ -1,30 +1,33 @@
 /**
- * Reconstructs activities from independently observed
- * and correlated forensic evidence.
+ * Reconstructs a chronological forensic timeline.
  *
- * Multiple raw observations describing the same activity
- * are merged into one reconstructed activity.
+ * Every source observation is retained.
+ * Correlations are preserved as relationships between
+ * observations rather than discarded when an event is
+ * involved in more than one correlation.
  */
 
 export function reconstructCase(events, correlations = []) {
-
   if (!Array.isArray(events)) {
     throw new Error("Events must be provided as an array.");
+  }
+
+  if (!Array.isArray(correlations)) {
+    throw new Error("Correlations must be provided as an array.");
   }
 
   const eventMap = new Map(
     events.map((event) => [event.recordId, event])
   );
 
-  const visited = new Set();
-  const activities = [];
+  const correlationsByRecord = new Map();
 
-  // --------------------------------------------------
-  // MERGE CORRELATED OBSERVATIONS
-  // --------------------------------------------------
+  for (const event of events) {
+    correlationsByRecord.set(event.recordId, []);
+  }
 
+  // Preserve every valid correlation for both observations.
   for (const correlation of correlations) {
-
     const first = eventMap.get(correlation.from);
     const second = eventMap.get(correlation.to);
 
@@ -32,224 +35,133 @@ export function reconstructCase(events, correlations = []) {
       continue;
     }
 
-    // Avoid processing the same observation twice.
-    if (
-      visited.has(first.recordId) ||
-      visited.has(second.recordId)
-    ) {
-      continue;
-    }
-
-    const observations = [first, second].sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() -
-        new Date(b.timestamp).getTime()
-    );
-
-    observations.forEach((event) => {
-      visited.add(event.recordId);
-    });
-
-    activities.push(
-      buildActivity(observations, correlation)
-    );
+    correlationsByRecord.get(first.recordId).push(correlation);
+    correlationsByRecord.get(second.recordId).push(correlation);
   }
 
-  // --------------------------------------------------
-  // KEEP UNCORRELATED OBSERVATIONS
-  // --------------------------------------------------
+  // Produce one timeline entry per source observation.
+  // This avoids losing events or implying that distinct
+  // activities are necessarily the same activity.
+  const timeline = events.map((event) => {
+    const relatedCorrelations =
+      correlationsByRecord.get(event.recordId) || [];
 
-  for (const event of events) {
+    const relatedRecordIds = new Set();
 
-    if (visited.has(event.recordId)) {
-      continue;
+    const sharedEntities = new Set();
+
+    for (const correlation of relatedCorrelations) {
+      const otherId =
+        correlation.from === event.recordId
+          ? correlation.to
+          : correlation.from;
+
+      relatedRecordIds.add(otherId);
+
+      for (const entity of correlation.sharedEntities || []) {
+        sharedEntities.add(entity);
+      }
     }
 
-    activities.push(
-      buildActivity([event], null)
-    );
+    const sources = new Set([event.source]);
 
-    visited.add(event.recordId);
-  }
+    for (const relatedId of relatedRecordIds) {
+      const relatedEvent = eventMap.get(relatedId);
 
-  // --------------------------------------------------
-  // SORT FINAL ACTIVITIES CHRONOLOGICALLY
-  // --------------------------------------------------
+      if (relatedEvent?.source) {
+        sources.add(relatedEvent.source);
+      }
+    }
 
-  activities.sort(
-    (a, b) =>
+    const supportLevel =
+      relatedRecordIds.size > 0
+        ? "corroborated-observation"
+        : "single-source";
+
+    return {
+      activityId: `ACT-${event.recordId}`,
+      timestamp: event.timestamp,
+      time: event.timestamp.slice(11, 19),
+      type: event.action,
+      description: describeEvent(event),
+      user: event.user || null,
+      device: event.device || null,
+      file: event.file || null,
+      usb:
+        event.usb ||
+        (event.destination?.startsWith("USB-")
+          ? event.destination
+          : null),
+      ip:
+        event.ip ||
+        (event.destination &&
+        /^\d{1,3}(?:\.\d{1,3}){3}$/.test(event.destination)
+          ? event.destination
+          : null),
+      sources: [...sources],
+      supportingRecords: [
+        event.recordId,
+        ...relatedRecordIds,
+      ],
+      observationCount: 1,
+      correlation:
+        relatedCorrelations.length > 0 ? "strong" : "single-source",
+      supportLevel,
+      sharedEntities: [...sharedEntities],
+      relatedCorrelations: relatedCorrelations.map((correlation) => ({
+        from: correlation.from,
+        to: correlation.to,
+        relation: correlation.relation,
+        strength: correlation.strength,
+        sharedEntities: correlation.sharedEntities || [],
+      })),
+    };
+  });
+
+  timeline.sort((a, b) => {
+    const timeDifference =
       new Date(a.timestamp).getTime() -
-      new Date(b.timestamp).getTime()
-  );
+      new Date(b.timestamp).getTime();
 
-  // Add final sequence numbers.
-  return activities.map((activity, index) => ({
+    return timeDifference ||
+      a.activityId.localeCompare(b.activityId);
+  });
+
+  return timeline.map((activity, index) => ({
     ...activity,
-    sequence: index + 1
+    sequence: index + 1,
   }));
 }
 
+function describeEvent(event) {
+  switch (event.action) {
+    case "LOGIN":
+      return "User login observed";
 
-// ==================================================
-// BUILD ONE RECONSTRUCTED ACTIVITY
-// ==================================================
+    case "FAILED_LOGIN":
+    case "LOGIN_FAILED":
+      return "Failed login attempt observed";
 
-function buildActivity(observations, correlation) {
+    case "FILE_ACCESS":
+    case "READ":
+      return "File access observed";
 
-  const primary = observations[0];
+    case "COPY":
+    case "FILE_WRITE":
+      return "File copied to USB device";
 
-  const actions = observations.map(
-    (event) => event.action
-  );
+    case "NETWORK_CONNECTION":
+    case "CONNECTION":
+      return "Network connection observed";
 
-  let activityType = primary.action;
-  let description = primary.action;
+    case "TRANSFER":
+    case "OUTBOUND_TRANSFER":
+      return "File transfer observed";
 
-  // --------------------------------------------------
-  // FILE ACCESS
-  // --------------------------------------------------
+    case "CONNECT":
+      return "USB device connected";
 
-  if (
-    actions.includes("FILE_ACCESS") ||
-    actions.includes("READ")
-  ) {
-    activityType = "FILE_ACCESS";
-    description = "File accessed";
+    default:
+      return `${event.action} observed`;
   }
-
-  // --------------------------------------------------
-  // USB COPY
-  // --------------------------------------------------
-
-  if (
-    actions.includes("COPY") ||
-    actions.includes("FILE_WRITE")
-  ) {
-    activityType = "USB_COPY";
-    description = "File copied to USB device";
-  }
-
-  // --------------------------------------------------
-  // NETWORK CONNECTION
-  // --------------------------------------------------
-
-  if (
-    actions.includes("NETWORK_CONNECTION") ||
-    actions.includes("CONNECTION")
-  ) {
-    activityType = "NETWORK_CONNECTION";
-    description =
-      "External network connection established";
-  }
-
-  // --------------------------------------------------
-  // FILE TRANSFER
-  // --------------------------------------------------
-
-  if (
-    actions.includes("TRANSFER") ||
-    actions.includes("OUTBOUND_TRANSFER")
-  ) {
-    activityType = "FILE_TRANSFER";
-    description =
-      "File transferred to external destination";
-  }
-
-  // --------------------------------------------------
-  // EXTRACT COMMON ENTITIES
-  // --------------------------------------------------
-
-  const user =
-    observations.find((event) => event.user)?.user ||
-    null;
-
-  const device =
-    observations.find((event) => event.device)?.device ||
-    null;
-
-  const file =
-    observations.find((event) => event.file)?.file ||
-    null;
-
-  const usb =
-    observations.find((event) => event.usb)?.usb ||
-    observations.find(
-      (event) =>
-        event.destination &&
-        event.destination.startsWith("USB-")
-    )?.destination ||
-    null;
-
-  const ip =
-    observations.find((event) => event.ip)?.ip ||
-    observations.find(
-      (event) =>
-        event.destination &&
-        /^\d+\.\d+\.\d+\.\d+$/.test(event.destination)
-    )?.destination ||
-    null;
-
-  // --------------------------------------------------
-  // EVIDENCE SUPPORT CLASSIFICATION
-  // --------------------------------------------------
-
-  const sources = [
-    ...new Set(
-      observations.map(
-        (event) => event.source
-      )
-    )
-  ];
-
-  const supportLevel =
-    observations.length >= 2 && sources.length >= 2
-      ? "strong-corroboration"
-      : "single-source";
-
-  // --------------------------------------------------
-  // FINAL ACTIVITY OBJECT
-  // --------------------------------------------------
-
-  return {
-
-    activityId: `ACT-${primary.recordId}`,
-
-    timestamp: primary.timestamp,
-
-    time: primary.timestamp.slice(11, 19),
-
-    type: activityType,
-
-    description,
-
-    user,
-
-    device,
-
-    file,
-
-    usb,
-
-    ip,
-
-    sources,
-
-    supportingRecords:
-      observations.map(
-        (event) => event.recordId
-      ),
-
-    observationCount:
-      observations.length,
-
-    correlation:
-      correlation?.strength ||
-      "single-source",
-
-    supportLevel,
-
-    sharedEntities:
-      correlation?.sharedEntities ||
-      []
-  };
 }
