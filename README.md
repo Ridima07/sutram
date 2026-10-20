@@ -1,4 +1,4 @@
-\# SUTRAM
+\# EVENTRA
 
 
 
@@ -6,7 +6,7 @@
 
 
 
-SUTRAM is a prototype digital forensics investigation framework designed to collect, analyze, authenticate, and correlate digital evidence from multiple sources.
+EVENTRA is a prototype digital forensics investigation framework designed to collect, analyze, authenticate, and correlate digital evidence from multiple sources.
 
 
 
