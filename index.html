@@ -1,0 +1,453 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUTRAM | Forensic Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:#080b14; --panel:#101522; --panel2:#141a2b;
+  --border:#242c40; --text:#edf0fc; --muted:#8994af;
+  --purple:#9c8aff; --cyan:#68d9e8; --red:#ff7085;
+  --green:#54dfb0; --amber:#ffca7a;
+}
+* {box-sizing:border-box}
+body {margin:0;background:var(--bg);color:var(--text);
+  font:14px 'DM Sans',sans-serif}
+button,input {font:inherit}
+button {cursor:pointer}
+.layout {display:flex;min-height:100vh}
+.sidebar {width:235px;flex-shrink:0;background:#0c101c;
+  border-right:1px solid var(--border);padding:27px 16px;
+  display:flex;flex-direction:column}
+.brand {font:700 27px 'Space Grotesk';letter-spacing:3px}
+.brand span {color:var(--purple)}
+.tagline {font-size:10px;letter-spacing:2px;color:var(--muted);margin-top:5px}
+.eyebrow {font-size:10px;letter-spacing:2px;color:var(--muted);
+  margin:36px 10px 12px}
+.nav {display:flex;align-items:center;gap:12px;padding:12px;
+  border:1px solid transparent;border-radius:10px;color:#aab4cc;
+  background:transparent;text-align:left;width:100%;margin:3px 0}
+.nav:hover {background:#171d30;color:white}
+.nav.active {background:#211c3a;border-color:#383054;color:#c4b6ff}
+.nav .ico {width:19px;text-align:center;font-size:17px}
+.side-bottom {margin-top:auto;border-top:1px solid var(--border);
+  padding:20px 8px 0;color:var(--muted);font-size:12px;line-height:2}
+.dot {display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--green);margin-right:7px}
+main {flex:1;min-width:0;padding:30px 34px 40px}
+.topbar {display:flex;justify-content:space-between;align-items:center;
+  gap:15px;margin-bottom:30px;flex-wrap:wrap}
+.crumb {font-size:10px;color:var(--purple);letter-spacing:2px;
+  text-transform:uppercase}
+h1 {font:600 clamp(25px,3vw,34px) 'Space Grotesk';margin:9px 0}
+.subtitle {color:var(--muted);font-size:13px}
+.casebox {border:1px solid var(--border);background:var(--panel);
+  padding:13px 17px;border-radius:12px;line-height:1.9;font-size:12px}
+.casebox b {color:#c8bbff;margin-left:8px}
+.demo {display:inline-flex;align-items:center;gap:7px;border:1px solid #51416b;
+  background:#211a34;color:#c5b4ff;padding:7px 10px;border-radius:7px;
+  font-size:10px;letter-spacing:1px}
+.sectionhead {display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin:27px 0 14px}
+h2 {font:600 17px 'Space Grotesk';margin:0}
+.muted {color:var(--muted)}
+.small {font-size:11px}
+.grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.card {background:linear-gradient(145deg,#131a2b,#101522);
+  border:1px solid var(--border);border-radius:14px;padding:20px;
+  min-width:0;transition:transform .2s,border-color .2s}
+.card:hover {transform:translateY(-2px);border-color:#514778}
+.kpi-top {display:flex;justify-content:space-between;align-items:center}
+.kpi-icon {width:36px;height:36px;border-radius:10px;display:grid;
+  place-items:center;background:#28223f;color:var(--purple);font-size:17px}
+.kpi-label {color:#a5aec5;font-size:12px;margin-top:18px}
+.kpi-num {font:600 32px 'Space Grotesk';margin:5px 0 9px}
+.kpi-foot {font-size:11px;color:var(--muted)}
+.purple {color:var(--purple)} .cyan {color:var(--cyan)}
+.red {color:var(--red)} .green {color:var(--green)}
+.amber {color:var(--amber)}
+.columns {display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+.activity {display:flex;gap:13px;padding:16px 0;border-bottom:1px solid var(--border)}
+.activity:last-child {border:0}
+.activity-mark {width:9px;height:9px;border-radius:50%;margin-top:5px;
+  background:var(--purple);box-shadow:0 0 12px #9c8aff55;flex-shrink:0}
+.activity strong {font-size:13px}
+.activity p {font-size:11px;color:var(--muted);margin:6px 0 0}
+.pill {display:inline-block;padding:5px 8px;border-radius:6px;
+  font-size:10px;letter-spacing:.5px;background:#28223e;color:#c9bbff}
+.pill.high {background:#3a1e2c;color:#ff91a2}
+.pill.medium {background:#352c20;color:#ffcf8c}
+.pill.low {background:#17332f;color:#73e8c1}
+.source {margin:20px 0}
+.source-line {display:flex;justify-content:space-between;gap:12px;
+  margin-bottom:9px;font-size:12px}
+.track {height:5px;border-radius:9px;background:#252d41;overflow:hidden}
+.fill {height:100%;border-radius:9px;background:linear-gradient(90deg,#7866e9,#b09aff)}
+.table-wrap {overflow-x:auto}
+table {width:100%;border-collapse:collapse;white-space:nowrap}
+th {font-size:10px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);font-weight:500;text-align:left}
+th,td {padding:15px 13px;border-bottom:1px solid var(--border)}
+td {font-size:12px}
+tbody tr:hover {background:#181e2e}
+input,select {background:#0b101c;border:1px solid var(--border);
+  color:var(--text);padding:10px 12px;border-radius:8px;outline:none}
+input:focus,select:focus {border-color:var(--purple)}
+.toolbar {display:flex;gap:10px;flex-wrap:wrap}
+.toolbar input {min-width:200px;flex:1}
+.btn {border:1px solid var(--border);background:#191f31;color:#dce1f2;
+  padding:10px 14px;border-radius:8px}
+.btn:hover {border-color:var(--purple)}
+.btn.primary {background:#7562d9;border-color:#7562d9;color:white}
+.page {display:none}
+.page.active {display:block;animation:appear .22s ease}
+@keyframes appear {from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.timeline {position:relative;margin:24px 0 10px 8px}
+.timeline:before {content:"";position:absolute;left:8px;top:8px;bottom:8px;
+  width:1px;background:#34304f}
+.event {position:relative;padding:0 0 25px 32px}
+.event:before {content:"";position:absolute;left:3px;top:5px;width:11px;height:11px;
+  border-radius:50%;background:var(--purple);border:2px solid #24203a}
+.event time {font-size:11px;color:var(--purple)}
+.event h3 {font-size:13px;margin:7px 0}
+.event p {color:var(--muted);font-size:12px;margin:0}
+.graph {min-height:320px;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at center,#19152e 0%,#101522 68%);
+  border:1px solid var(--border);border-radius:12px}
+.graph svg {position:absolute;width:100%;height:100%;inset:0}
+.node {position:absolute;transform:translate(-50%,-50%);border:1px solid #514478;
+  background:#211c38;color:#ddd4ff;border-radius:10px;padding:12px 14px;
+  font-size:11px;box-shadow:0 0 20px #9c8aff18}
+.node small {display:block;color:var(--muted);margin-top:5px}
+.graph-legend {display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);
+  font-size:11px;margin-top:15px}
+.empty {padding:30px;text-align:center;color:var(--muted)}
+.footer {color:#68748f;font-size:10px;text-align:center;margin-top:30px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.columns{grid-template-columns:1fr}main{padding:24px 20px}}
+@media(max-width:650px){.layout{display:block}.sidebar{width:100%;padding:15px}
+.brand{font-size:22px}.eyebrow,.side-bottom{display:none}
+nav{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.nav{justify-content:center;padding:9px 4px;font-size:11px}
+.nav .ico{display:none}main{padding:22px 13px}.grid{gap:9px}
+.card{padding:14px}.kpi-num{font-size:26px}.casebox{display:none}}
+</style>
+
+<style>
+/* SUTRAM — premium visual polish */
+:root {
+  --bg: #080b14;
+  --surface: #101625;
+  --surface-hover: #161f31;
+  --border: rgba(160, 174, 205, 0.16);
+  --text: #edf2ff;
+  --muted: #8795b5;
+  --violet: #9b87ff;
+  --cyan: #54d9f0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 80% 0%,
+      rgba(105, 76, 210, 0.09), transparent 42%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+button, a, input, select {
+  transition: background .2s ease, border-color .2s ease,
+              color .2s ease, transform .2s ease;
+}
+
+aside, .sidebar {
+  background: rgba(12, 16, 28, 0.96);
+  border-right: 1px solid var(--border);
+}
+
+nav a, aside a, .sidebar a {
+  border-radius: 10px;
+}
+
+nav a:hover, aside a:hover, .sidebar a:hover {
+  background: rgba(155, 135, 255, 0.10);
+  color: #c7bcff;
+}
+
+main {
+  min-width: 0;
+}
+
+h1, h2, h3 {
+  color: var(--text);
+  letter-spacing: -0.035em;
+}
+
+p, small, .muted {
+  color: var(--muted);
+}
+
+.card, .stat-card, article, .panel {
+  background: linear-gradient(
+    145deg,
+    rgba(20, 28, 45, 0.96),
+    rgba(13, 19, 32, 0.98)
+  );
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.12);
+  transition: border-color .2s ease,
+              transform .2s ease, box-shadow .2s ease;
+}
+
+.card:hover, .stat-card:hover, article:hover, .panel:hover {
+  border-color: rgba(155, 135, 255, 0.38);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.20);
+  transform: translateY(-2px);
+}
+
+button {
+  border-radius: 9px;
+}
+
+button:hover {
+  border-color: var(--violet);
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+  main {
+    padding: 20px !important;
+  }
+
+  .card, .stat-card, article, .panel {
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+</style>
+
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">SU<span>TR</span>AM</div>
+  <div class="tagline">FORENSIC INTELLIGENCE</div>
+  <div class="eyebrow">WORKSPACE</div>
+  <nav id="navigation">
+    <button class="nav active" data-page="dashboard"><span class="ico">◫</span>Dashboard</button>
+    <button class="nav" data-page="evidence"><span class="ico">▤</span>Evidence</button>
+    <button class="nav" data-page="anomalies"><span class="ico">⌁</span>Anomalies</button>
+    <button class="nav" data-page="investigation"><span class="ico">◎</span>Investigation</button>
+    <button class="nav" data-page="timeline"><span class="ico">◷</span>Timeline</button>
+  </nav>
+  <div class="side-bottom">
+    <div><span class="dot"></span>Demo environment</div>
+    <div>v1.0 · Local workspace</div>
+    <div style="margin-top:12px">AI-POWERED FORENSICS</div>
+  </div>
+</aside>
+
+<main>
+<header class="topbar">
+  <div>
+    <div class="crumb" id="crumb">Digital Forensics / Overview</div>
+    <h1 id="pageTitle">Investigation Overview</h1>
+    <div class="subtitle" id="pageSubtitle">A unified view of digital evidence and incident activity.</div>
+  </div>
+  <div class="casebox">CASE ID <b>STR-2026-001</b><br>
+    <span class="dot"></span>Demo workspace
+  </div>
+</header>
+
+<section class="page active" id="page-dashboard">
+  <div class="sectionhead"><h2>Case at a glance</h2><span class="demo">● DEMO DATA</span></div>
+  <div class="grid">
+    <div class="card"><div class="kpi-top"><span class="muted small">Evidence records</span><span class="kpi-icon">▤</span></div><div class="kpi-num">24</div><div class="kpi-foot"><span class="purple">●</span> Across 4 sources</div></div>
+    <div class="card"><div class="kpi-top"><span class="muted small">Flagged events</span><span class="kpi-icon" style="color:var(--red)">⌁</span></div><div class="kpi-num red">06</div><div class="kpi-foot">2 marked high priority</div></div>
+    <div class="card"><div class="kpi-top"><span class="muted small">Entities identified</span><span class="kpi-icon" style="color:var(--cyan)">◇</span></div><div class="kpi-num cyan">18</div><div class="kpi-foot">Users, devices and IPs</div></div>
+    <div class="card"><div class="kpi-top"><span class="muted small">Correlations</span><span class="kpi-icon">⌘</span></div><div class="kpi-num purple">71</div><div class="kpi-foot">Illustrative cross-source links</div></div>
+  </div>
+
+  <div class="columns">
+    <div class="card" style="margin-top:18px">
+      <div class="sectionhead" style="margin-top:0"><h2>Recent activity</h2><button class="btn" onclick="showPage('anomalies')">View all ↗</button></div>
+      <div id="recent"></div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="sectionhead" style="margin-top:0"><h2>Evidence sources</h2><span class="muted small">24 records</span></div>
+      <div id="sources"></div>
+    </div>
+  </div>
+  <div class="footer">Illustrative values for UI demonstration. Not live forensic findings.</div>
+</section>
+
+<section class="page" id="page-evidence">
+  <div class="sectionhead"><h2>Evidence registry</h2><span class="demo">DEMO RECORDS</span></div>
+  <div class="card">
+    <div class="toolbar" style="margin-bottom:18px">
+      <input id="eSearch" placeholder="Search evidence, source or ID...">
+      <select id="eFilter"><option value="All">All sources</option><option>System logs</option><option>File access</option><option>Network logs</option><option>USB activity</option></select>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Record</th><th>Timestamp</th><th>Status</th></tr></thead><tbody id="eRows"></tbody></table></div>
+    <p class="muted small">Sample records only. No real files have been registered or hash-verified.</p>
+  </div>
+</section>
+
+<section class="page" id="page-anomalies">
+  <div class="sectionhead"><h2>Anomaly review</h2><span class="demo">SIMULATED FINDINGS</span></div>
+  <div class="card">
+    <div class="toolbar" style="margin-bottom:18px">
+      <input id="aSearch" placeholder="Search event, user or IP...">
+      <select id="aFilter"><option value="All">All severities</option><option>High</option><option>Medium</option><option>Low</option></select>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Event</th><th>User / IP</th><th>Time</th><th>Severity</th><th>Score</th></tr></thead><tbody id="aRows"></tbody></table></div>
+    <p class="muted small">These are illustrative examples, not predictions from the ML model.</p>
+  </div>
+</section>
+
+<section class="page" id="page-investigation">
+  <div class="sectionhead"><h2>Evidence relationship map</h2><span class="demo">ILLUSTRATIVE GRAPH</span></div>
+  <div class="card">
+    <p class="muted">Example relationships between entities. Links below are illustrative and are not computed correlations.</p>
+    <div class="graph">
+      <svg viewBox="0 0 600 320" preserveAspectRatio="none">
+        <line x1="300" y1="60" x2="150" y2="150" stroke="#7867c9" stroke-width="1.5"/>
+        <line x1="300" y1="60" x2="450" y2="150" stroke="#7867c9" stroke-width="1.5"/>
+        <line x1="150" y1="150" x2="240" y2="255" stroke="#7867c9" stroke-width="1.5"/>
+        <line x1="450" y1="150" x2="370" y2="255" stroke="#7867c9" stroke-width="1.5"/>
+        <line x1="240" y1="255" x2="370" y2="255" stroke="#7867c9" stroke-width="1.5" stroke-dasharray="5 5"/>
+      </svg>
+      <div class="node" style="left:50%;top:19%">USER-01<small>Example user</small></div>
+      <div class="node" style="left:25%;top:47%">DEVICE-02<small>Workstation</small></div>
+      <div class="node" style="left:75%;top:47%">IP-03<small>Network address</small></div>
+      <div class="node" style="left:40%;top:80%">FILE-04<small>Access record</small></div>
+      <div class="node" style="left:62%;top:80%">USB-05<small>Removable media</small></div>
+    </div>
+    <div class="graph-legend"><span class="purple">● Entity</span><span>— Illustrative relationship</span><span>Not verified against live evidence</span></div>
+  </div>
+</section>
+
+<section class="page" id="page-timeline">
+  <div class="sectionhead"><h2>Incident timeline</h2><span class="demo">SAMPLE EVENTS</span></div>
+  <div class="card"><div class="timeline" id="timelineRows"></div>
+  <p class="muted small">Chronology shown for demonstration only. Times are sample values.</p></div>
+</section>
+</main>
+</div>
+
+<script>
+const records = [
+ {id:"EV-001",source:"System logs",name:"Login activity recorded",time:"09:12 AM",status:"Recorded"},
+ {id:"EV-002",source:"File access",name:"Unusual file access",time:"10:42 AM",status:"Review"},
+ {id:"EV-003",source:"USB activity",name:"External USB connected",time:"10:18 AM",status:"Review"},
+ {id:"EV-004",source:"Network logs",name:"New network connection",time:"09:56 AM",status:"Recorded"},
+ {id:"EV-005",source:"File access",name:"Sensitive folder opened",time:"10:45 AM",status:"Review"},
+ {id:"EV-006",source:"System logs",name:"Authentication event",time:"11:02 AM",status:"Recorded"}
+];
+const anomalies = [
+ {event:"Unusual file access",user:"analyst-01",ip:"192.168.1.14",time:"10:42 AM",severity:"High",score:.94},
+ {event:"External USB connected",user:"operator-02",ip:"192.168.1.20",time:"10:18 AM",severity:"High",score:.89},
+ {event:"New network connection",user:"analyst-01",ip:"10.0.0.24",time:"09:56 AM",severity:"Medium",score:.73},
+ {event:"Repeated login attempts",user:"user-03",ip:"192.168.1.31",time:"09:31 AM",severity:"Medium",score:.67},
+ {event:"Unusual access time",user:"user-04",ip:"10.0.0.18",time:"08:15 AM",severity:"Low",score:.42},
+ {event:"Permission change",user:"admin-01",ip:"192.168.1.11",time:"08:03 AM",severity:"Low",score:.35}
+];
+const sourceCounts = [
+ ["System logs",8],["File access",6],["Network logs",5],["USB activity",5]
+];
+const events = [
+ ["11:02 AM","Authentication event","System logs · Example user"],
+ ["10:42 AM","Unusual file access","File access · Example workstation"],
+ ["10:18 AM","External USB connected","USB activity · Example device"],
+ ["09:56 AM","New network connection","Network logs · Example address"],
+ ["09:12 AM","Login activity recorded","System logs · Example user"]
+];
+const pageInfo = {
+ dashboard:["Digital Forensics / Overview","Investigation Overview","A unified view of digital evidence and incident activity."],
+ evidence:["Workspace / Evidence","Evidence Registry","Browse the sample records collected for this investigation."],
+ anomalies:["Workspace / Anomalies","Anomaly Review","Review illustrative events by severity and score."],
+ investigation:["Workspace / Investigation","Evidence Relationships","Explore a sample map of related entities."],
+ timeline:["Workspace / Timeline","Incident Timeline","Review example events in chronological order."]
+};
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function showPage(name){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+ document.getElementById("page-"+name).classList.add("active");
+ const info=pageInfo[name];
+ document.getElementById("crumb").textContent=info[0];
+ document.getElementById("pageTitle").textContent=info[1];
+ document.getElementById("pageSubtitle").textContent=info[2];
+}
+document.getElementById("navigation").addEventListener("click",e=>{
+ const b=e.target.closest("[data-page]");if(b)showPage(b.dataset.page);
+});
+function renderRecent(){
+ document.getElementById("recent").innerHTML=anomalies.slice(0,4).map(a=>`
+ <div class="activity"><span class="activity-mark"></span><div style="flex:1">
+ <strong>${safe(a.event)}</strong><p>${safe(a.user)} · ${safe(a.time)}</p></div>
+ <span class="pill ${a.severity.toLowerCase()}">${a.severity.toUpperCase()}</span></div>`).join("");
+}
+function renderSources(){
+ document.getElementById("sources").innerHTML=sourceCounts.map(([name,count])=>`
+ <div class="source"><div class="source-line"><span>${name}</span><b>${count} records</b></div>
+ <div class="track"><div class="fill" style="width:${count/8*100}%"></div></div></div>`).join("");
+}
+function renderEvidence(){
+ const q=document.getElementById("eSearch").value.toLowerCase();
+ const f=document.getElementById("eFilter").value;
+ const list=records.filter(r=>(f==="All"||r.source===f)&&
+ Object.values(r).join(" ").toLowerCase().includes(q));
+ document.getElementById("eRows").innerHTML=list.length?list.map(r=>`
+ <tr><td class="purple">${r.id}</td><td>${safe(r.source)}</td><td>${safe(r.name)}</td>
+ <td>${r.time}</td><td><span class="pill ${r.status==="Review"?"medium":"low"}">${r.status}</span></td></tr>`).join("")
+ :'<tr><td colspan="5" class="empty">No matching sample records.</td></tr>';
+}
+function renderAnomalies(){
+ const q=document.getElementById("aSearch").value.toLowerCase();
+ const f=document.getElementById("aFilter").value;
+ const list=anomalies.filter(a=>(f==="All"||a.severity===f)&&
+ Object.values(a).join(" ").toLowerCase().includes(q));
+ document.getElementById("aRows").innerHTML=list.length?list.map(a=>`
+ <tr><td><b>${safe(a.event)}</b></td><td>${safe(a.user)}<br><span class="muted">${safe(a.ip)}</span></td>
+ <td>${a.time}</td><td><span class="pill ${a.severity.toLowerCase()}">${a.severity}</span></td>
+ <td><span class="${a.score>=.8?"red":a.score>=.6?"amber":"green"}">${a.score.toFixed(2)}</span></td></tr>`).join("")
+ :'<tr><td colspan="5" class="empty">No matching sample events.</td></tr>';
+}
+function renderTimeline(){
+ document.getElementById("timelineRows").innerHTML=events.map(e=>`
+ <div class="event"><time>${e[0]}</time><h3>${e[1]}</h3><p>${e[2]}</p></div>`).join("");
+}
+document.getElementById("eSearch").addEventListener("input",renderEvidence);
+document.getElementById("eFilter").addEventListener("change",renderEvidence);
+document.getElementById("aSearch").addEventListener("input",renderAnomalies);
+document.getElementById("aFilter").addEventListener("change",renderAnomalies);
+renderRecent();renderSources();renderEvidence();renderAnomalies();renderTimeline();
+</script>
+</body>
+</html>
