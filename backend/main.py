@@ -6,6 +6,7 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
+from event_routes import router as event_router
 
 from model import score
 
@@ -15,6 +16,7 @@ LABEL = "Potentially anomalous activity — requires investigator review"
 NOT_FLAGGED = "Not flagged at the current threshold"
 
 app = FastAPI(title="Forensics Anomaly API")
+app.include_router(event_router)
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
 
