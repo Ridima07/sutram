@@ -1,25 +1,46 @@
-function Timeline({ edges, onEventClick, selectedEdge }) {
-  const events = [...edges].sort(
-    (a, b) =>
-      new Date(a.data.timestamp) -
-      new Date(b.data.timestamp)
-  );
 
-  const formatTime = (timestamp) =>
-    new Date(timestamp).toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+function getEventTime(event) {
+  const timestamp = event.data?.timestamp;
+
+  if (timestamp) {
+    const parsed = new Date(timestamp);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  // Computed correlations currently provide a time difference,
+  // not the original timestamps of both source records.
+  return null;
+}
+
+function formatTime(date) {
+  if (!date) return "Time unavailable";
+
+  return date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+function Timeline({ edges, onEventClick, selectedEdge }) {
+  const events = [...edges].sort((a, b) => {
+    const timeA = getEventTime(a);
+    const timeB = getEventTime(b);
+
+    if (!timeA && !timeB) return a.id.localeCompare(b.id);
+    if (!timeA) return 1;
+    if (!timeB) return -1;
+
+    return timeA - timeB;
+  });
 
   return (
     <div className="timeline">
       <div className="timeline-header">
         <div>
-          <span className="eyebrow">
-            CASE RECONSTRUCTION
-          </span>
-
+          <span className="eyebrow">CASE RECONSTRUCTION</span>
           <h3>Incident Timeline</h3>
         </div>
 
@@ -30,8 +51,10 @@ function Timeline({ edges, onEventClick, selectedEdge }) {
 
       <div className="timeline-list">
         {events.map((event) => {
-          const isSelected =
-            selectedEdge?.id === event.id;
+          const isSelected = selectedEdge?.id === event.id;
+          const isComputed = event.data?.isComputed === true;
+          const timestamp = getEventTime(event);
+          const recordIds = event.data?.recordIds ?? [];
 
           return (
             <button
@@ -42,7 +65,9 @@ function Timeline({ edges, onEventClick, selectedEdge }) {
               onClick={() => onEventClick(event)}
             >
               <div className="timeline-time">
-                {formatTime(event.data.timestamp)}
+                {isComputed
+                  ? `${event.data.timeDifferenceSeconds ?? "?"}s apart`
+                  : formatTime(timestamp)}
               </div>
 
               <div className="timeline-dot" />
@@ -50,20 +75,24 @@ function Timeline({ edges, onEventClick, selectedEdge }) {
               <div className="timeline-event">
                 <div className="timeline-event-top">
                   <strong>
-                    {event.data.relation}
+                    {event.data?.relation || event.label || "Evidence event"}
                   </strong>
 
                   <span>
-                    {event.data.recordId}
+                    {isComputed
+                      ? recordIds.join(" ↔ ")
+                      : event.data?.recordId || "Mock record"}
                   </span>
                 </div>
 
                 <p>
-                  {event.data.reason}
+                  {event.data?.reason || "No explanation available."}
                 </p>
 
                 <small>
-                  {event.data.evidence}
+                  {isComputed
+                    ? `COMPUTED CORRELATION · ${event.data?.strength || "unknown"} strength`
+                    : `MOCK EVENT · ${event.data?.evidence || "evidence source unavailable"}`}
                 </small>
               </div>
             </button>

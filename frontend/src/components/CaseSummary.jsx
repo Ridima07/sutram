@@ -1,4 +1,13 @@
+
 function CaseSummary({ nodes, edges }) {
+  const computedEdges = edges.filter(
+    (edge) => edge.data?.isComputed === true
+  );
+
+  const mockEdges = edges.filter(
+    (edge) => edge.data?.isMock === true
+  );
+
   const stats = [
     {
       label: "ENTITIES",
@@ -8,17 +17,17 @@ function CaseSummary({ nodes, edges }) {
     {
       label: "CONNECTIONS",
       value: edges.length,
-      description: "Evidence relationships",
+      description: `${computedEdges.length} computed · ${mockEdges.length} mock`,
     },
     {
-      label: "EVENTS",
-      value: edges.length,
-      description: "Recorded forensic events",
+      label: "CORRELATED PAIRS",
+      value: computedEdges.length,
+      description: "Cross-source record correlations",
     },
     {
       label: "RISK SIGNAL",
       value: "HIGH",
-      description: "Potential data exfiltration",
+      description: "Potential data exfiltration indicators",
       risk: true,
     },
   ];
@@ -27,15 +36,11 @@ function CaseSummary({ nodes, edges }) {
     <div className="case-summary">
       {stats.map((stat) => (
         <div
-          className={`summary-card ${
-            stat.risk ? "risk-card" : ""
-          }`}
+          className={`summary-card ${stat.risk ? "risk-card" : ""}`}
           key={stat.label}
         >
           <span>{stat.label}</span>
-
           <strong>{stat.value}</strong>
-
           <small>{stat.description}</small>
         </div>
       ))}

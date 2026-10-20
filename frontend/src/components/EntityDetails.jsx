@@ -1,11 +1,20 @@
+
+const FILE_NODE_IDS = new Set([
+  "report",
+  "financial-summary",
+  "meeting-notes",
+  "notes",
+  "presentation",
+]);
+
 function getEntityType(node) {
   const id = node.id;
 
-  if (id === "rahul") return "PERSON";
+  if (["rahul", "amit", "priya"].includes(id)) return "PERSON";
   if (id.startsWith("laptop")) return "DEVICE";
-  if (id === "report") return "FILE";
+  if (FILE_NODE_IDS.has(id)) return "FILE";
   if (id.startsWith("usb")) return "USB DEVICE";
-  if (id === "ip") return "IP ADDRESS";
+  if (id === "ip" || id.startsWith("ip-")) return "IP ADDRESS";
 
   return "ENTITY";
 }
@@ -13,13 +22,30 @@ function getEntityType(node) {
 function getDescription(node) {
   const descriptions = {
     rahul: "User account associated with activity on Laptop-07.",
-    laptop07: "Endpoint device used during the investigated activity.",
-    report: "Sensitive document involved in access, USB transfer and network transfer events.",
-    usb003: "Removable storage device connected to Laptop-07.",
-    ip: "External network endpoint contacted by Laptop-07.",
+    amit: "User account associated with activity on Laptop-03.",
+    priya: "User account associated with activity on Laptop-11.",
+
+    laptop07: "Endpoint device associated with the investigated activity.",
+    laptop03: "Endpoint device associated with financial-summary.xlsx and related events.",
+    laptop11: "Endpoint device associated with meeting_notes.docx and related events.",
+
+    report: "Confidential document appearing in access, removable-storage, and network-transfer correlations.",
+    "financial-summary": "Spreadsheet associated with file access and other correlated events.",
+    "meeting-notes": "Document associated with correlated endpoint activity.",
+    notes: "Text file associated with a correlated endpoint activity.",
+    presentation: "Presentation file associated with a correlated endpoint activity.",
+
+    usb003: "Removable storage device associated with Laptop-07 activity.",
+    usb005: "Removable storage device associated with Laptop-03 activity.",
+
+    ip: "Network endpoint associated with Laptop-07 activity.",
+    "ip-amit": "Network endpoint associated with Laptop-03 activity.",
   };
 
-  return descriptions[node.id] || "Forensic entity identified in the investigation.";
+  return (
+    descriptions[node.id] ||
+    "Forensic entity identified in the investigation."
+  );
 }
 
 function EntityDetails({ node, edges }) {
@@ -53,17 +79,30 @@ function EntityDetails({ node, edges }) {
             const otherNode =
               edge.source === node.id ? edge.target : edge.source;
 
+            const isComputed = edge.data?.isComputed === true;
+
             return (
               <div className="connection-item" key={edge.id}>
                 <div className="connection-top">
-                  <strong>{edge.label}</strong>
+                  <strong>{edge.label || edge.data?.relation}</strong>
+                  <span>
+                    {isComputed ? "COMPUTED" : "MOCK"}
+                  </span>
                 </div>
 
                 <p>
                   {edge.source === node.id ? "→" : "←"} {otherNode}
                 </p>
 
-                <small>{edge.data.reason}</small>
+                <small>
+                  {edge.data?.reason || "No explanation available."}
+                </small>
+
+                {isComputed && (
+                  <small>
+                    Records: {(edge.data.recordIds || []).join(" ↔ ")}
+                  </small>
+                )}
               </div>
             );
           })}
