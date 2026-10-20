@@ -203,7 +203,7 @@ const stronglyCorroborated =
   timeline.filter(
     (activity) =>
       activity.supportLevel ===
-      "strong-corroboration"
+      "corroborated-observation"
   ).length;
 
 const singleSource =

@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "test:reconstruction": "node src/testReconstruction.js"
+    "test:reconstruction": "node src/testReconstruction.js",
+    "test:association": "node src/testAnomalyAssociation.js"
   }
 }

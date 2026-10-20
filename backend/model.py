@@ -1,6 +1,7 @@
 import joblib
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from sklearn.ensemble import IsolationForest
 from features import build_features, FEATURES
 
@@ -10,20 +11,34 @@ FLAGS = {"off_hours": "off-hours access", "external_ip": "external IP address",
          "new_ip": "IP not usual for this user"}
 
 
-def train(path="data/logs.csv"):
+def train(path=None):
+    backend_dir = Path(__file__).resolve().parent
+
+    if path is None:
+        path = backend_dir / "data" / "logs.csv"
+
     df = build_features(pd.read_csv(path))
     X = df[FEATURES]
-    model = IsolationForest(n_estimators=200, contamination=0.05,
-                            random_state=42).fit(X)
-    raw = -model.score_samples(X)  # higher = more unusual
+
+    model = IsolationForest(
+        n_estimators=200,
+        contamination=0.05,
+        random_state=42
+    ).fit(X)
+
+    raw = -model.score_samples(X)
+
     stats = {
         "lo": float(raw.min()),
         "hi": float(raw.max()),
         "median": X.median().to_dict(),
         "mad": (X - X.median()).abs().median().replace(0, 1).to_dict(),
     }
-    joblib.dump((model, stats), "model.joblib")
-    print("Model trained and saved to model.joblib")
+
+    model_path = backend_dir / "model.joblib"
+    joblib.dump((model, stats), model_path)
+
+    print(f"Model trained and saved to {model_path}")
 
 
 def explain(row, stats):
@@ -43,7 +58,8 @@ def explain(row, stats):
 
 
 def score(df):
-    model, stats = joblib.load("model.joblib")
+    model_path = Path(__file__).resolve().parent / "model.joblib"
+    model, stats = joblib.load(model_path)
     df = build_features(df)
     raw = -model.score_samples(df[FEATURES])
     scaled = (raw - stats["lo"]) / (stats["hi"] - stats["lo"])
